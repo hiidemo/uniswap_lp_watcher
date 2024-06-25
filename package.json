@@ -1,0 +1,18 @@
+{
+  "type": "module",
+  "devDependencies": {
+    "@babel/cli": "^7.19.3",
+    "@babel/core": "^7.20.2",
+    "@babel/preset-env": "^7.20.2"
+  },
+  "dependencies": {
+    "@uniswap/sdk": "^3.0.3",
+    "axios": "^1.7.2",
+    "debugout": "^1.0.0",
+    "dotenv": "^16.0.3",
+    "ethers": "^5.7.2",
+    "prompt-sync": "^4.2.0",
+    "telegraf": "^4.16.3",
+    "uniswap": "^0.0.1"
+  }
+}
