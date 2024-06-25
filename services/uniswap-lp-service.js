@@ -117,9 +117,11 @@ module.exports = class UniswapLpService extends BaseService {
           }
         }
       }
-
-      console.log("Sleeping for " + this.schedule/(60 * 1000) + " minutes");
+    } else {
+      console.log("No LPs to check");
     }
+
+    console.log("Sleeping for " + this.schedule/(60 * 1000) + " minutes");
   }
 };
 
