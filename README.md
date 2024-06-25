@@ -16,13 +16,14 @@ Set your environment ENDPOINT_* variable to be the HTTPS link
 
 Configure your telegram bot token and chat id in the.env file
 
-Install bun.sh: https://bun.sh/ 
+Install bun.sh
+
 `Develop, test, run, and bundle JavaScript & TypeScript projects—all with Bun. Bun is an all-in-one JavaScript runtime & toolkit designed for speed, complete with a bundler, test runner, and Node.js-compatible package manager.`
 
 Then run:
 `bun main.js`
 
-# Future
+# Features
 1. Using the [Uniswap SDK](https://github.com/Uniswap/uniswap-python) to pull the LP balance.
 2. Using SQLite to store the LP pool ID.
 3. Implement telegram bot commands to add/remove LP pools.
