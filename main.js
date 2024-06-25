@@ -5,7 +5,7 @@ const ServiceManager = require('./services/service-manager');
 const UniswapLpService = require('./services/uniswap-lp-service');
 ServiceManager.add(new UniswapLpService('UniswapLpService', 180000));
 
-const BotCommandService = require('./services/bot-command-service');
-ServiceManager.add(new BotCommandService('BotCommandService'));
+const TelegramBotService = require('./services/telegram-bot-service');
+ServiceManager.add(new TelegramBotService('TelegramBotService'));
 
 ServiceManager.start();
