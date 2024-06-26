@@ -102,7 +102,7 @@ module.exports = class UniswapLpService extends BaseService {
             let amount1Human = (tokens[1]/(10**data.T1d)).toFixed(data.T1d);
 
             Notifier.notify(
-              data.Pair + " (" + lp.source + ")",
+              data.Pair + " (" + lp.id + " - " + lp.source + ")",
               "👉 warning: LP is out of range ==> " + amount0Human + "|" + amount1Human
             );
             this.sentMessages.push(lp.id);
@@ -110,7 +110,7 @@ module.exports = class UniswapLpService extends BaseService {
         } else {
           if (this.sentMessages.includes(lp.id)) {
             Notifier.notify(
-              data.Pair + " (" + lp.source + ")",
+              data.Pair + " (" + lp.id + " - " + lp.source + ")",
               "LP is back in range"
             );
             this.sentMessages.splice(this.sentMessages.indexOf(lp.id), 1);
