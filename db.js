@@ -52,4 +52,13 @@ module.exports = {
 			return false;
 		}
 	},
+
+	updateLastCheckedPool: function(poolId, lastChecked) {
+		let lp_watcher = db.prepare(
+			"UPDATE lp_watcher SET last_checked =? WHERE id =?"
+		);
+		let res = lp_watcher.run(lastChecked, poolId);
+
+		return res.changes;
+	}
 }

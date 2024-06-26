@@ -77,10 +77,7 @@ module.exports = class UniswapLpService extends BaseService {
     // console.log("Checking Uniswap LPs");
 
     let lp_watchers = await db.getPoolWatchers();
-    let provider = null;
-    let factory = null;
-    let NFTmanager = null;
-
+    
     if (lp_watchers.length > 0) {
       for (var lp of lp_watchers) {
         if (typeof NETWORK[lp.source] === 'undefined') {
@@ -90,38 +87,50 @@ module.exports = class UniswapLpService extends BaseService {
 
         console.log("Checking LP " + lp.id + " from " + lp.source);
         
-        provider = new ethers.providers.JsonRpcProvider(NETWORK[lp.source].endpoint_url);
-        factory = NETWORK[lp.source].factory;
-        NFTmanager = NETWORK[lp.source].NFTmanager;
-
-        let data = await getData(lp.id, provider, factory, NFTmanager);
-        let tokens = await getTokenAmounts(data.liquidity, data.SqrtX96, data.tickLow, data.tickHigh, data.T0d, data.T1d);
-        if (tokens[0] * tokens[1] <= 0) { // LP is out of range
+        let data_lp = await this.getLP(lp);
+        if (data_lp.amount0 * data_lp.amount1 <= 0) { // LP is out of range
           if (!this.sentMessages.includes(lp.id)) {
-            let amount0Human = (tokens[0]/(10**data.T0d)).toFixed(data.T0d);
-            let amount1Human = (tokens[1]/(10**data.T1d)).toFixed(data.T1d);
 
             Notifier.notify(
-              data.Pair + " (" + lp.id + " - " + lp.source + ")",
-              "👉 warning: LP is out of range ==> " + amount0Human + "|" + amount1Human
+              data_lp.pair + " (" + lp.id + " - " + lp.source + ")",
+              "👉 warning: LP is out of range ==> " + data_lp.amount0Human + "|" + data_lp.amount1Human
             );
             this.sentMessages.push(lp.id);
           }
         } else {
           if (this.sentMessages.includes(lp.id)) {
             Notifier.notify(
-              data.Pair + " (" + lp.id + " - " + lp.source + ")",
+              data_lp.pair + " (" + lp.id + " - " + lp.source + ")",
               "LP is back in range"
             );
             this.sentMessages.splice(this.sentMessages.indexOf(lp.id), 1);
           }
         }
+
+        db.updateLastCheckedPool(lp.id, data_lp.pair + " - " + data_lp.amount0Human + "|" + data_lp.amount1Human);
       }
     } else {
       console.log("No LPs to check");
     }
 
     console.log("Sleeping for " + this.schedule/(60 * 1000) + " minutes");
+  }
+
+  getLP = async function (lp) {
+    const provider = new ethers.providers.JsonRpcProvider(NETWORK[lp.source].endpoint_url);
+    const factory = NETWORK[lp.source].factory;
+    const NFTmanager = NETWORK[lp.source].NFTmanager;
+
+    const data = await getData(lp.id, provider, factory, NFTmanager);
+    const tokens = await getTokenAmounts(data.liquidity, data.SqrtX96, data.tickLow, data.tickHigh, data.T0d, data.T1d);
+
+    return {
+      pair: data.Pair,
+      amount0: tokens[0],
+      amount1: tokens[1],
+      amount0Human: (tokens[0]/(10**data.T0d)).toFixed(4),
+      amount1Human: (tokens[1]/(10**data.T1d)).toFixed(4),
+    }
   }
 };
 

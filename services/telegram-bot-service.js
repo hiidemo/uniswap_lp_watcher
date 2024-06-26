@@ -1,5 +1,6 @@
 const { Telegraf, Markup } = require('telegraf');
 const BaseService = require("./base-service");
+const UniswapLpService = require('./uniswap-lp-service');
 const Notifier = require("../notifier");
 const db = require("../db");
 const BOT = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
@@ -42,7 +43,7 @@ module.exports = class TelegramBotService extends BaseService {
 		let _markup = [];
 		watchers.forEach(function(watcher) {
 			_markup.push([
-				Markup.button.callback(watcher.id + " (" + watcher.source + ")", watcher.id)
+				Markup.button.callback(watcher.id + " (" + watcher.source.toUpperCase() + ")", watcher.id)
 			]);
 		});
 		ctx.reply('Choose a <b>LP</b> to remove', {
@@ -59,15 +60,19 @@ module.exports = class TelegramBotService extends BaseService {
 		});
 	});	
 	  
-	BOT.command('listlp', () => {
+	BOT.command('listlp', (ctx) => {
 		let watchers = db.getPoolWatchers();
 		let msg = "";
 		let n = 0;
-		watchers.forEach(function(watcher) {
+		watchers.forEach(function(lp) {
 			n++;
-			msg += n + ". " + watcher.id + " - " + watcher.source + "\n";
+
+			msg += n + ". <b>" + lp.id + " - " + lp.source.toUpperCase() + "</b>\n";
+			msg += "    <i>" + lp.last_checked + "</i>\n";
 		})
-		Notifier.notify('List LPs', msg);
+		ctx.reply(msg, {parse_mode: 'HTML'});
+
+		// Notifier.notify('List LPs', msg);
 	});	
 	
 	BOT.on("text", async (ctx) => {
