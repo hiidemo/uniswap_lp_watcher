@@ -1,6 +1,6 @@
 const fs = require('fs');
 const { JSBI }  = require("@uniswap/sdk");
-const { ethers } = require('ethers');
+const { ethers, BigNumber } = require('ethers');
 const db = require("../db");
 const Notifier = require("../notifier");
 const BaseService = require("./base-service");
@@ -66,6 +66,7 @@ const IUniswapV3NFTmanagerABI = JSON.parse(NFT);
 // const provider = new ethers.providers.JsonRpcProvider("https://mainnet.infura.io/v3/31f2f496e0c7454b80715c158f52ead6");
 
 const Q96 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96));
+const MAX_UINT128 = BigNumber.from(2).pow(128).sub(1);
 
 /////////////////////////////////////////////////////////////////
 module.exports = class UniswapLpService extends BaseService {
@@ -107,7 +108,7 @@ module.exports = class UniswapLpService extends BaseService {
           }
         }
 
-        db.updateLastCheckedPool(lp.id, data_lp.pair + " - " + data_lp.amount0Human + "|" + data_lp.amount1Human);
+        db.updateLastCheckedPool(lp.id, data_lp.pair + " => " + data_lp.amount0Human + "|" + data_lp.amount1Human + "\n    🔥reward => " + data_lp.fee0Human + "|" + data_lp.fee1Human + " 🔥");
       }
     } else {
       console.log("No LPs to check");
@@ -128,8 +129,10 @@ module.exports = class UniswapLpService extends BaseService {
       pair: data.Pair,
       amount0: tokens[0],
       amount1: tokens[1],
-      amount0Human: (tokens[0]/(10**data.T0d)).toFixed(4),
-      amount1Human: (tokens[1]/(10**data.T1d)).toFixed(4),
+      amount0Human: _format_units(tokens[0], data.T0d, 4),
+      amount1Human: _format_units(tokens[1], data.T1d, 4),
+      fee0Human: _format_units(data.T0f, data.T0d, 4),
+      fee1Human: _format_units(data.T1f, data.T1d, 4),
     }
   }
 };
@@ -157,10 +160,20 @@ async function getData(tokenID, provider, factory, NFTmanager){
 
     let slot0 = await poolContract.slot0();
 
-    
+    // fee
+    const encoded = {
+        tokenId: tokenID,
+        recipient: '0x0000000000000000000000000000000000000000',
+        amount0Max: MAX_UINT128,
+        amount1Max: MAX_UINT128,
+    };
+    const tx = await NFTContract.callStatic.collect(encoded);
+    const token0Fees = tx[0];
+    const token1Fees = tx[1];
+
     let pairName = token0sym +"/"+ token1sym;
     
-    let dict = {"SqrtX96" : slot0.sqrtPriceX96.toString(), "Pair": pairName, "T0d": token0Decimal, "T1d": token1Decimal, "tickLow": position.tickLower, "tickHigh": position.tickUpper, "liquidity": position.liquidity.toString()}
+    const dict = {"SqrtX96" : slot0.sqrtPriceX96.toString(), "Pair": pairName, "T0d": token0Decimal, "T1d": token1Decimal, "T0f": token0Fees, "T1f": token1Fees, "tickLow": position.tickLower, "tickHigh": position.tickUpper, "liquidity": position.liquidity.toString()}
 
     return dict
 }
@@ -194,13 +207,14 @@ async function getTokenAmounts(liquidity,sqrtPriceX96,tickLow,tickHigh,token0Dec
     return [amount0wei, amount1wei]
 }
 
-async function start_test(positionID, provider, factory, NFTmanager){
-    let data = await getData(positionID, provider, factory, NFTmanager);
-    console.log(data);
-    let tokens = await getTokenAmounts(data.liquidity, data.SqrtX96, data.tickLow, data.tickHigh, data.T0d, data.T1d);
-
-    let amount0Human = (tokens[0]/(10**data.T0d)).toFixed(data.T0d);
-    let amount1Human = (tokens[1]/(10**data.T1d)).toFixed(data.T1d);
-
-    console.log(data.Pair + ": "+amount0Human+"|"+amount1Human);
+/**
+ * Format a value in raw units to a human-readable format.
+ * @param {BigNumber | string} value - The value to format.
+ * @param {number} units - The number of decimal units to format the value.
+ * @param {number} decimals - The number of decimal to show.
+ * @returns {string} The formatted fee value as a string.
+ */
+function _format_units(value, units, decimals = null) {
+  decimals = decimals || units;
+  return (value/(10**units)).toFixed(decimals);
 }

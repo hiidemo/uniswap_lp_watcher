@@ -68,7 +68,7 @@ module.exports = class TelegramBotService extends BaseService {
 			n++;
 
 			msg += n + ". <b>" + lp.id + " - " + lp.source.toUpperCase() + "</b>\n";
-			msg += "    <i>" + lp.last_checked + "</i>\n";
+			msg += "    <i>" + lp.last_checked + "</i>\n\n";
 		})
 		ctx.reply(msg, {parse_mode: 'HTML'});
 
