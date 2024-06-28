@@ -43,13 +43,13 @@ var NETWORK = {
   },
   bsc: {
       endpoint_url: process.env.ENDPOINT_BSC_URL,
-      factory: '0x1F98431c8aD98523631AE4a59f267346ea31F984',
-      NFTmanager: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
+      factory: '0xdB1d10011AD0Ff90774D0C6Bb92e5C5c8b4461F7',
+      NFTmanager: '0x7b8A01B39D58278b5DE7e48c8449c9f4F5170613'
   },
   avax: {
       endpoint_url: process.env.ENDPOINT_AVAX_URL,
-      factory: '0x1F98431c8aD98523631AE4a59f267346ea31F984',
-      NFTmanager: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
+      factory: '0x740b1c1de25031C31FF4fC9A62f554A55cdC1baD',
+      NFTmanager: '0x655C406EBFa14EE2006250925e54ec43AD184f8B'
   }
       
 };
