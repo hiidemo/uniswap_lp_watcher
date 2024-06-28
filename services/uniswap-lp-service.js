@@ -40,7 +40,17 @@ var NETWORK = {
       endpoint_url: process.env.ENDPOINT_POLYGON_URL,
       factory: '0x1F98431c8aD98523631AE4a59f267346ea31F984',
       NFTmanager: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
-      }
+  },
+  bsc: {
+      endpoint_url: process.env.ENDPOINT_BSC_URL,
+      factory: '0x1F98431c8aD98523631AE4a59f267346ea31F984',
+      NFTmanager: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
+  },
+  avax: {
+      endpoint_url: process.env.ENDPOINT_AVAX_URL,
+      factory: '0x1F98431c8aD98523631AE4a59f267346ea31F984',
+      NFTmanager: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
+  }
       
 };
 

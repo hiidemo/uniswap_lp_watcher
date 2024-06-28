@@ -16,7 +16,7 @@ const LP = {
 	source: '',
 };
 
-const networks = ["eth", "arb", "celo", "base", "op", "blast", "polygon"];
+const networks = ["eth", "arb", "celo", "base", "op", "blast", "polygon", "bsc", "avax"];
 
 module.exports = class TelegramBotService extends BaseService {
   constructor(name) {
@@ -88,7 +88,7 @@ module.exports = class TelegramBotService extends BaseService {
 				LP.id = pool_id;
 
 				STEP.push(1);
-				ctx.reply("--Please enter a Network (ETH/CELO/ARB/BASE/OP/BLAST/POLYGON):");
+				Notifier.notify("--Choose a Network--", networks.map(x => x.toUpperCase()).join('/'));
 				return;
 			} catch (err) {
 				ctx.reply("--ERROR: INVALID URL--");
