@@ -102,6 +102,12 @@ module.exports = class TelegramBotService extends BaseService {
 				let network = text.toLowerCase().trim();
 				if (!network ||!networks.includes(network)) return ctx.reply("--ERROR: invalid network--");
 
+				// check exists
+				let exists_pool = db.getPoolWatcher(LP.id);
+				if (exists_pool) {
+					return ctx.reply("--ERROR: LP already exists--");
+				}
+
 				LP.source = network;
 				let res = db.addPoolWatcher(LP.id, LP.source);
 				if (res) {
