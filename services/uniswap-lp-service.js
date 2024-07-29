@@ -117,7 +117,7 @@ module.exports = class UniswapLpService extends BaseService {
           }
         }
 
-        db.updateLastCheckedPool(lp.id, lp.userid, lp.source, data_lp.pair + " => " + data_lp.amount0Human + "|" + data_lp.amount1Human + "\n    🔥reward => " + data_lp.fee0Human + "|" + data_lp.fee1Human + " 🔥");
+        db.updateLastCheckedPool(lp.userid, lp.id, lp.source, data_lp.pair + " => " + data_lp.amount0Human + "|" + data_lp.amount1Human + "\n    🔥reward => " + data_lp.fee0Human + "|" + data_lp.fee1Human + " 🔥");
       }
     } else {
       console.log("No LPs to check");
