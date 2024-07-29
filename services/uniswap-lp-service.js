@@ -100,25 +100,24 @@ module.exports = class UniswapLpService extends BaseService {
         
         let data_lp = await this.getLP(lp);
         if (data_lp.amount0 * data_lp.amount1 <= 0) { // LP is out of range
-          if (!this.sentMessages.includes(lp.id)) {
-
-            Notifier.notify(
+          if (!this.sentMessages.includes(lp.userid + '_' + lp.id + '_' + lp.source)) {
+            Notifier.notify(lp.userid,
               data_lp.pair + " (" + lp.id + " - " + lp.source + ")",
               "👉 warning: LP is out of range ==> " + data_lp.amount0Human + "|" + data_lp.amount1Human
             );
-            this.sentMessages.push(lp.id);
+            this.sentMessages.push(lp.userid + '_' + lp.id + '_' + lp.source);
           }
         } else {
-          if (this.sentMessages.includes(lp.id)) {
-            Notifier.notify(
+          if (this.sentMessages.includes(lp.userid + '_' + lp.id + '_' + lp.source)) {
+            Notifier.notify(lp.userid,
               data_lp.pair + " (" + lp.id + " - " + lp.source + ")",
               "LP is back in range"
             );
-            this.sentMessages.splice(this.sentMessages.indexOf(lp.id), 1);
+            this.sentMessages.splice(this.sentMessages.indexOf(lp.userid + '_' + lp.id + '_' + lp.source), 1);
           }
         }
 
-        db.updateLastCheckedPool(lp.id, data_lp.pair + " => " + data_lp.amount0Human + "|" + data_lp.amount1Human + "\n    🔥reward => " + data_lp.fee0Human + "|" + data_lp.fee1Human + " 🔥");
+        db.updateLastCheckedPool(lp.id, lp.userid, lp.source, data_lp.pair + " => " + data_lp.amount0Human + "|" + data_lp.amount1Human + "\n    🔥reward => " + data_lp.fee0Human + "|" + data_lp.fee1Human + " 🔥");
       }
     } else {
       console.log("No LPs to check");

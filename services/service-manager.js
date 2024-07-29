@@ -28,7 +28,7 @@ const manager = {
     } catch (err) {
       console.log("[ERROR] " + service.name + ": " + err);
       this.stop(service);
-      Notifier.notify(service.name + " Error", "Service failed");
+      Notifier.notify(process.env.TELEGRAM_CHAT_ID, service.name + " Error", "Service failed");
     }
   },
 };

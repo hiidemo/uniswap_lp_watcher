@@ -2,11 +2,11 @@ const { Database } = require("bun:sqlite");
 const db = new Database("db.sqlite");
 
 module.exports = {
-	addPoolWatcher: function(poolId, source) {
+	addPoolWatcher: function(userId, poolId, source) {
 		let lp_watcher = db.query(
-			"INSERT INTO lp_watcher (id, source, last_checked, warning_level, status) VALUES (?,?,?,?,?)"
+			"INSERT INTO lp_watcher (id, userid, source, last_checked, warning_level, status) VALUES (?,?,?,?,?,?)"
 		);
-		let res = lp_watcher.run(poolId, source, 0, 0, 1);
+		let res = lp_watcher.run(poolId, userId, source, 0, 0, 1);
 	  
 		if (res.lastInsertRowid > 0) {
 			console.log("Pool watcher added");
@@ -17,11 +17,11 @@ module.exports = {
 		return res.lastInsertRowid;
 	},
 	  
-	removePoolWatcher: function(poolId) {
+	removePoolWatcher: function(userId, poolId, source) {
 		let lp_watcher = db.prepare(
-			"DELETE FROM lp_watcher WHERE id =?"
+			"DELETE FROM lp_watcher WHERE id =? AND userid =? AND source =?"
 		);
-		let res = lp_watcher.run(poolId);
+		let res = lp_watcher.run(poolId, userId, source);
 		// console.debug(res);
 		
 		console.log("Pool watcher removed");
@@ -29,11 +29,11 @@ module.exports = {
 		return res.changes;
 	},
 	  
-	getPoolWatcher: function(poolId) {
+	getPoolWatcher: function(userId, poolId, source) {
 		let lp_watcher = db.query(
-			"SELECT * FROM lp_watcher WHERE id =?"
+			"SELECT * FROM lp_watcher WHERE id =? AND userid =? AND source =?"
 		);
-		let res = lp_watcher.get(poolId);
+		let res = lp_watcher.get(poolId, userId, source);
 		if (res) {
 			return res;
 		} else {
@@ -53,11 +53,11 @@ module.exports = {
 		}
 	},
 
-	updateLastCheckedPool: function(poolId, lastChecked) {
+	updateLastCheckedPool: function(userId, poolId, source, lastChecked) {
 		let lp_watcher = db.prepare(
-			"UPDATE lp_watcher SET last_checked =? WHERE id =?"
+			"UPDATE lp_watcher SET last_checked =? WHERE id =? AND userid =? AND source =?"
 		);
-		let res = lp_watcher.run(lastChecked, poolId);
+		let res = lp_watcher.run(lastChecked, poolId, userId, source);
 
 		return res.changes;
 	}

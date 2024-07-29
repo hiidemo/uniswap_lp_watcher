@@ -43,7 +43,7 @@ module.exports = class TelegramBotService extends BaseService {
 		let _markup = [];
 		watchers.forEach(function(watcher) {
 			_markup.push([
-				Markup.button.callback(watcher.id + " (" + watcher.source.toUpperCase() + ")", watcher.id)
+				Markup.button.callback(watcher.id + " (" + watcher.source.toUpperCase() + ")", watcher.userid + '_' + watcher.id + '_' + watcher.source)
 			]);
 		});
 		ctx.reply('Choose a <b>LP</b> to remove', {
@@ -53,9 +53,12 @@ module.exports = class TelegramBotService extends BaseService {
 
 		BOT.action(/.+/, (ctx) => {
 			// Call a function to remove lp
-			let pool_id = ctx.match[0];
-			let res = db.removePoolWatcher(pool_id);
-			Notifier.notify('Remove LP - ' + pool_id, 'LP was removed!');
+			let pk = ctx.match[0].split('_');
+			let user_id = pk[0];
+			let pool_id = pk[1];
+			let source = pk[2];
+			let res = db.removePoolWatcher(user_id, pool_id, source);
+			Notifier.notify(user_id, 'Remove LP - ' + pool_id, 'LP was removed!');
 			return ctx.answerCbQuery(`You have chosen ${ctx.match[0]}`)
 		});
 	});	
@@ -71,14 +74,13 @@ module.exports = class TelegramBotService extends BaseService {
 			msg += "    <i>" + lp.last_checked + "</i>\n\n";
 		})
 		ctx.reply(msg, {parse_mode: 'HTML'});
-
-		// Notifier.notify('List LPs', msg);
 	});	
 	
 	BOT.on("text", async (ctx) => {
 		if (!LISTENER.status) return;
 
         const text = ctx.message.text;
+		const userid = ctx.message.from.id;
 
 		if (STEP.length == 0) {
 			try {
@@ -88,7 +90,7 @@ module.exports = class TelegramBotService extends BaseService {
 				LP.id = pool_id;
 
 				STEP.push(1);
-				Notifier.notify("--Choose a Network--", networks.map(x => x.toUpperCase()).join('/'));
+				Notifier.notify(userid, "--Choose a Network--", networks.map(x => x.toUpperCase()).join('/'));
 				return;
 			} catch (err) {
 				ctx.reply("--ERROR: INVALID URL--");
@@ -101,19 +103,19 @@ module.exports = class TelegramBotService extends BaseService {
 			try {
 				let network = text.toLowerCase().trim();
 				if (!network ||!networks.includes(network)) return ctx.reply("--ERROR: invalid network--");
+				LP.source = network;
 
 				// check exists
-				let exists_pool = db.getPoolWatcher(LP.id);
+				let exists_pool = db.getPoolWatcher(userid, LP.id, LP.source);
 				if (exists_pool) {
 					return ctx.reply("--ERROR: LP already exists--");
 				}
-
-				LP.source = network;
-				let res = db.addPoolWatcher(LP.id, LP.source);
+				
+				let res = db.addPoolWatcher(userid, LP.id, LP.source);
 				if (res) {
-					Notifier.notify('Add LP - ' + LP.id, 'LP was added!');
+					Notifier.notify(userid, 'Add LP - ' + LP.id, 'LP was added!');
 				} else {
-					Notifier.notify('Add LP - ' + LP.id, 'Error adding LP!');
+					Notifier.notify(userid, 'Add LP - ' + LP.id, 'Error adding LP!');
 				}
 			} catch (err) {
 				ctx.reply("--ERROR: A execption has occurred--");

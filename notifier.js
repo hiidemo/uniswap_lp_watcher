@@ -1,8 +1,8 @@
 const {EOL} = require('os');
 const axios = require('axios');
-const TELEGRAM_URL = 'https://api.telegram.org/bot' + process.env.TELEGRAM_BOT_TOKEN + '/sendMessage?chat_id=' + process.env.TELEGRAM_CHAT_ID + '&text=';
 module.exports = {
- notify: async function(title, body) {
+ notify: async function(userid, title, body) {
+  const TELEGRAM_URL = 'https://api.telegram.org/bot' + process.env.TELEGRAM_BOT_TOKEN + '/sendMessage?chat_id=' + userid + '&text=';
   axios.get(TELEGRAM_URL + encodeURIComponent(title + EOL + body))
    .then(function (response) {
     // handle success
