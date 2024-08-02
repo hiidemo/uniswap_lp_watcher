@@ -73,8 +73,6 @@ const IUniswapV3FactoryABI = JSON.parse(facto);
 let NFT = fs.readFileSync('required_files/UniV3NFT.json');
 const IUniswapV3NFTmanagerABI = JSON.parse(NFT);
 
-// const provider = new ethers.providers.JsonRpcProvider("https://mainnet.infura.io/v3/31f2f496e0c7454b80715c158f52ead6");
-
 const Q96 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96));
 const MAX_UINT128 = BigNumber.from(2).pow(128).sub(1);
 
@@ -107,6 +105,8 @@ module.exports = class UniswapLpService extends BaseService {
             );
             this.sentMessages.push(lp.userid + '_' + lp.id + '_' + lp.source);
           }
+        } else if (lp.warning_level > 0 && data_lp.amount0 * data_lp.amount1 > 0) { // notification when one of tokens is below given ratio
+            
         } else {
           if (this.sentMessages.includes(lp.userid + '_' + lp.id + '_' + lp.source)) {
             Notifier.notify(lp.userid,

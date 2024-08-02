@@ -71,7 +71,6 @@ const IUniswapV3NFTmanagerABI = JSON.parse(NFT);
 let NFTmanager = NETWORK.celo.NFTmanager;
 
 const provider = new ethers.providers.JsonRpcProvider(NETWORK.celo.endpoint_url);
-// const provider = new ethers.providers.JsonRpcProvider("https://mainnet.infura.io/v3/31f2f496e0c7454b80715c158f52ead6");
 
 const Q96 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96));
 const MAX_UINT128 = BigNumber.from(2).pow(128).sub(1);
